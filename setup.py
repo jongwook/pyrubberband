@@ -1,8 +1,18 @@
 from setuptools import setup, find_packages
+from setuptools.extension import Extension
+from Cython.Build import cythonize
 
+import sys
 import imp
+import glob
 
 version = imp.load_source('pyrubberband.version', 'pyrubberband/version.py')
+
+extra_compile_args = []
+if 'win' in sys.platform:
+    extra_compile_args += ['/DUSE_KISSFFT', '/DUSE_SPEEX']
+else:
+    extra_compile_args += ['-DUSE_KISSFFT', '-DUSE_SPEEX']
 
 setup(
     name='pyrubberband',
@@ -31,6 +41,7 @@ setup(
     install_requires=[
         'six',
         'pysoundfile>=0.8.0',
+        'Cython',
     ],
     extras_require={
         'docs': ['numpydoc'],
@@ -44,5 +55,12 @@ setup(
         'pytest',
         'pytest-cov',
         'pytest-pep8'
-    ]
+    ],
+    ext_modules=cythonize(Extension(
+        'pyrubberband.rubberband',
+        sources=['pyrubberband/rubberband.pyx'] + glob.glob('rubberband/**/*.c*'),
+        include_dirs=['rubberband'],
+        extra_compile_args=extra_compile_args,
+        language='c++'
+    ))
 )

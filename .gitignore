@@ -53,3 +53,6 @@ docs/generated/
 
 # PyBuilder
 target/
+
+# Cython artifacts
+pyrubberband/rubberband.cpp
