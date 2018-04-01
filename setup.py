@@ -12,7 +12,7 @@ extra_compile_args = []
 if 'win' in sys.platform:
     extra_compile_args += ['/DUSE_KISSFFT', '/DUSE_SPEEX']
 else:
-    extra_compile_args += ['-DUSE_KISSFFT', '-DUSE_SPEEX']
+    extra_compile_args += ['-DUSE_KISSFFT', '-DUSE_SPEEX', '-DUSE_PTHREADS']
 
 setup(
     name='pyrubberband',
