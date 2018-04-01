@@ -1,16 +1,16 @@
+import sys
+import imp
+from glob import glob
+
 from setuptools import setup, find_packages
 from setuptools.extension import Extension
 from Cython.Build import cythonize
-
-import sys
-import imp
-import glob
 
 version = imp.load_source('pyrubberband.version', 'pyrubberband/version.py')
 
 extra_compile_args = []
 if sys.platform.startswith('win'):
-    extra_compile_args += ['/DUSE_KISSFFT', '/DUSE_SPEEX']
+    extra_compile_args += ['/DUSE_KISSFFT', '/DUSE_SPEEX', '/D__MSVC__']
 else:
     extra_compile_args += ['-DUSE_KISSFFT', '-DUSE_SPEEX', '-DUSE_PTHREADS']
 
@@ -58,8 +58,8 @@ setup(
     ],
     ext_modules=cythonize(Extension(
         'pyrubberband.rubberband',
-        sources=['pyrubberband/rubberband.pyx'] + glob.glob('rubberband/**/*.c*'),
-        include_dirs=['rubberband'],
+        sources=['pyrubberband/rubberband.pyx'] + glob('rubberband/*.c*') + glob('rubberband/**/*.c*'),
+        include_dirs=['rubberband', '.'],
         extra_compile_args=extra_compile_args,
         language='c++'
     ))

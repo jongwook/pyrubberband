@@ -1,6 +1,9 @@
+import numpy as np
+
 from libcpp cimport bool
 from libcpp.map cimport map
 from libcpp.vector cimport vector
+from libcpp.string cimport string
 
 cdef enum Option:
     OptionProcessOffline       = 0x00000000
@@ -78,3 +81,98 @@ cdef extern from "RubberBandStretcher.h" namespace "RubberBand":
         size_t getChannelCount() const
         void calculateStretch()
         void setDebugLevel(int level)
+
+cdef extern from "main.h":
+    string rubberband_process(vector[string] args, size_t frames, int samplerate, int channels, string input)
+
+
+def time_stretch(y, sr, rate, rbargs=None):
+    '''Apply a time stretch of `rate` to an audio time series.
+
+    This uses the `tempo` form for rubberband, so the
+    higher the rate, the faster the playback.
+
+
+    Parameters
+    ----------
+    y : np.ndarray [shape=(n,) or (n, c)]
+        Audio time series, either single or multichannel
+
+    sr : int > 0
+        Sampling rate of `y`
+
+    rate : float > 0
+        Desired playback rate.
+
+    rbargs : list[str]
+        Additional parameters for rubberband
+
+        See `rubberband -h` for details.
+
+    Returns
+    -------
+    y_stretch : np.ndarray
+        Time-stretched audio
+
+    Raises
+    ------
+    ValueError
+        if `rate <= 0`
+    '''
+
+    if rate <= 0:
+        raise ValueError('rate must be strictly positive')
+
+    if rate == 1.0:
+        return y
+
+    if rbargs is None:
+        rbargs = []
+
+    rbargs = [str(item).encode('utf-8') for item in ['rubberband', '--tempo', rate] + rbargs]
+
+    if y.ndim == 1:
+        y = y[:, np.newaxis]
+
+    return rubberband_process(rbargs, y.shape[0], sr, y.shape[1], y.astype(np.float32).tobytes('C'))
+
+
+def pitch_shift(y, sr, n_steps, rbargs=None):
+    '''Apply a pitch shift to an audio time series.
+
+    Parameters
+    ----------
+    y : np.ndarray [shape=(n,) or (n, c)]
+        Audio time series, either single or multichannel
+
+    sr : int > 0
+        Sampling rate of `y`
+
+    n_steps : float
+        Shift by `n_steps` semitones.
+
+    rbargs : list[str]
+        Additional keyword parameters for rubberband
+
+        See `rubberband -h` for details.
+
+    Returns
+    -------
+    y_shift : np.ndarray
+        Pitch-shifted audio
+    '''
+
+    if n_steps == 0:
+        return y
+
+    if rbargs is None:
+        rbargs = []
+
+    rbargs = [str(item).encode('utf-8') for item in ['rubberband', '--pitch', n_steps] + rbargs]
+
+    if y.ndim == 1:
+        y = y[:, np.newaxis]
+
+    print(y)
+
+    return rubberband_process(rbargs, y.shape[0], sr, y.shape[1], y.astype(np.float32).tobytes('C'))

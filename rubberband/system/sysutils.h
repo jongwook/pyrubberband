@@ -24,10 +24,6 @@
 #ifndef _RUBBERBAND_SYSUTILS_H_
 #define _RUBBERBAND_SYSUTILS_H_
 
-#ifdef _MSC_VER
-#define __MSVC__ // # added by jongwook
-#endif
-
 #ifdef __MSVC__
 #include "float_cast/float_cast.h"
 #define R__ __restrict
@@ -165,7 +161,7 @@ extern void system_memorybarrier();
 
 #ifdef NO_THREADING
 #undef MBARRIER
-#define MBARRIER() 
+#define MBARRIER()
 #endif
 
 #endif

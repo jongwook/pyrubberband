@@ -29,7 +29,7 @@
 #include <utility>
 #include <iostream>
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <sys/time.h>
 #endif
 
@@ -190,7 +190,7 @@ Scavenger<T>::scavenge(bool clearNow)
 #endif
 
     if (m_scavenged >= m_claimed) return;
-    
+
     struct timeval tv;
     (void)gettimeofday(&tv, 0);
     int sec = tv.tv_sec;
