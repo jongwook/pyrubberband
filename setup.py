@@ -9,7 +9,7 @@ import glob
 version = imp.load_source('pyrubberband.version', 'pyrubberband/version.py')
 
 extra_compile_args = []
-if 'win' in sys.platform:
+if sys.platform.startswith('win'):
     extra_compile_args += ['/DUSE_KISSFFT', '/DUSE_SPEEX']
 else:
     extra_compile_args += ['-DUSE_KISSFFT', '-DUSE_SPEEX', '-DUSE_PTHREADS']
