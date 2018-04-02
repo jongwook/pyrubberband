@@ -203,6 +203,9 @@ cdef __rubberband(y, sr, rbargs, verbose=False):
         rbargs.append('-q')
 
     args = __parse_args([str(arg) for arg in rbargs])
+    if args.debug:
+        rubberband_set_default_debug_level(args.debug)
+
     options, time_ratio, pitch_scale = __rubberband_params(args, sr, frames)
 
     dtype = y.dtype
