@@ -1,9 +1,10 @@
 from cpython.bytes cimport PyBytes_AsString, PyBytes_FromStringAndSize
 
+import sys
 import argparse
 import numpy as np
 from libc.stdlib cimport malloc, free
-from libc.stdio cimport printf
+from libc.stdio cimport printf, fprintf, stderr
 
 __all__ = ['time_stretch', 'pitch_shift']
 
@@ -96,7 +97,11 @@ cdef extern from "rubberband-c.h":
 
 
 cdef __parse_args(rbargs):
-    parser = argparse.ArgumentParser(description='rubberband arguments')
+    class ArgumentParser(argparse.ArgumentParser):
+        def error(self, message):
+            raise ValueError('ArgumentParser Error: ' + message)
+
+    parser = ArgumentParser(description='rubberband arguments')
     parser.add_argument('--time', '-t', dest='time', type=float, help='Stretch to X times original duration')
     parser.add_argument('--tempo', '-T', dest='tempo', type=float, help='Change tempo by multiple X (same as --time 1/X)')
     parser.add_argument('--duration', '-D', dest='duration', type=float, help='Stretch or squash to make output file X seconds long')
@@ -125,7 +130,11 @@ cdef __parse_args(rbargs):
     parser.add_argument('--debug', '-d', dest='debug', type=int, help='Select debug level (N = 0,1,2,3); default 0, full 3 (N.B. debug level 3 includes audible ticks in output)')
     parser.add_argument('--quiet', '-q', dest='quiet', action='store_true', help='Suppress progress output')
 
-    return parser.parse_args(rbargs)
+    try:
+        return parser.parse_args(rbargs)
+    except ValueError:
+        fprintf(stderr, 'Failed to parse: ' + str(rbargs))
+        raise
 
 
 cdef __rubberband_params(args, sr, frames):
