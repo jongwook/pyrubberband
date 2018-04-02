@@ -1,4 +1,6 @@
 from setuptools import setup, find_packages
+from setuptools.extension import Extension
+from Cython.Build import cythonize
 
 import imp
 
@@ -44,5 +46,12 @@ setup(
         'pytest',
         'pytest-cov',
         'pytest-pep8'
-    ]
+    ],
+    ext_modules=cythonize(Extension(
+        'pyrubberband.rubberband',
+        sources=['pyrubberband/rubberband.pyx'],
+        libraries=['rubberband'],
+        include_dirs=['include'],
+        library_dirs=['lib']
+    ))
 )
