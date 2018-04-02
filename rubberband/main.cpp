@@ -119,8 +119,12 @@ string rubberband_process(vector<string> args, size_t frames, int samplerate, in
         SoftDetector
     } detector = CompoundDetector;
 
-	cout << "Starting rubberband ..." << endl;
-	cerr << "Starting rubberband ..." << endl;
+    optreset = 1;
+    opterr = 0;
+    optind = 0;
+    optopt = 0;
+    optreset = 0;
+    optarg = 0;
 
     vector<const char *> argv(args.size());
     for (int i = 0; i < argv.size(); i++) {
@@ -446,7 +450,7 @@ string rubberband_process(vector<string> args, size_t frames, int samplerate, in
         ts.setKeyFrameMap(mapping);
     }
 
-    size_t countIn = 0, countOut = 0;
+    size_t countIn = frames, countOut = 0;
 
     if (frame == 0 && !realtime && !quiet) {
         cerr << "Pass 2: Processing..." << endl;

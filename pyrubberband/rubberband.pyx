@@ -86,7 +86,37 @@ cdef extern from "main.h":
     string rubberband_process(vector[string] args, size_t frames, int samplerate, int channels, string input)
 
 
-def time_stretch(y, sr, rate, rbargs=None):
+cdef __rubberband(y, sr, rbargs, verbose=False):
+
+    ndim = y.ndim
+    if ndim == 1:
+        y = y[:, np.newaxis]
+
+    frames, channels = y.shape
+
+    rbargs = ['rubberband'] + rbargs
+
+    if not verbose:
+        rbargs.append('-q')
+
+    rbargs = [str(arg).encode('utf-8') for arg in rbargs]
+
+    dtype = y.dtype
+    y = y.astype(np.float32)
+
+    output = rubberband_process(rbargs, frames, sr, channels, y.tobytes('C'))
+    result = np.frombuffer(output, dtype=np.float32)
+
+    size = len(result)
+    result = np.reshape(result, (size // channels, channels))
+
+    if ndim == 1:
+        result = np.squeeze(result, axis=1)
+
+    return result.astype(dtype)
+
+
+def time_stretch(y, sr, rate, rbargs=None, verbose=False):
     '''Apply a time stretch of `rate` to an audio time series.
 
     This uses the `tempo` form for rubberband, so the
@@ -129,15 +159,12 @@ def time_stretch(y, sr, rate, rbargs=None):
     if rbargs is None:
         rbargs = []
 
-    rbargs = [str(item).encode('utf-8') for item in ['rubberband', '--tempo', rate] + rbargs]
+    rbargs = ['--tempo', rate] + rbargs
 
-    if y.ndim == 1:
-        y = y[:, np.newaxis]
-
-    return rubberband_process(rbargs, y.shape[0], sr, y.shape[1], y.astype(np.float32).tobytes('C'))
+    return __rubberband(y, sr, rbargs, verbose=verbose)
 
 
-def pitch_shift(y, sr, n_steps, rbargs=None):
+def pitch_shift(y, sr, n_steps, rbargs=None, verbose=False):
     '''Apply a pitch shift to an audio time series.
 
     Parameters
@@ -168,11 +195,6 @@ def pitch_shift(y, sr, n_steps, rbargs=None):
     if rbargs is None:
         rbargs = []
 
-    rbargs = [str(item).encode('utf-8') for item in ['rubberband', '--pitch', n_steps] + rbargs]
+    rbargs = ['--pitch', n_steps] + rbargs
 
-    if y.ndim == 1:
-        y = y[:, np.newaxis]
-
-    print(y)
-
-    return rubberband_process(rbargs, y.shape[0], sr, y.shape[1], y.astype(np.float32).tobytes('C'))
+    return __rubberband(y, sr, rbargs, verbose=verbose)
