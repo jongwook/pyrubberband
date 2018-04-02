@@ -293,7 +293,7 @@ def time_stretch(y, sr, rate, rbargs=None, verbose=False):
     if rbargs is None:
         rbargs = []
 
-    rbargs = ['--tempo', '.8f'.format(rate)] + rbargs
+    rbargs = ['--tempo', '%.8f' % rate] + rbargs
 
     return __rubberband(y, sr, rbargs, verbose=verbose)
 
@@ -323,6 +323,6 @@ def pitch_shift(y, sr, n_steps, rbargs=None, verbose=False):
     if rbargs is None:
         rbargs = []
 
-    rbargs = ['--pitch', '%.8f'.format(n_steps)] + rbargs
+    rbargs = ['--pitch', '%.8f' % n_steps] + rbargs
 
     return __rubberband(y, sr, rbargs, verbose=verbose)
