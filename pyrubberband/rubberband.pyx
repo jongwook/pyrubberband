@@ -130,15 +130,7 @@ cdef __parse_args(rbargs):
     parser.add_argument('--debug', '-d', dest='debug', type=int, help='Select debug level (N = 0,1,2,3); default 0, full 3 (N.B. debug level 3 includes audible ticks in output)')
     parser.add_argument('--quiet', '-q', dest='quiet', action='store_true', help='Suppress progress output')
 
-    try:
-        return parser.parse_args(rbargs)
-    except ValueError as e:
-        print(e)
-        print(e)
-        print(e)
-        print(e)
-        print(e)
-        raise
+    return parser.parse_args(rbargs)
 
 
 cdef __rubberband_params(args, sr, frames):
@@ -301,7 +293,7 @@ def time_stretch(y, sr, rate, rbargs=None, verbose=False):
     if rbargs is None:
         rbargs = []
 
-    rbargs = ['--tempo', rate] + rbargs
+    rbargs = ['--tempo', '.8f'.format(rate)] + rbargs
 
     return __rubberband(y, sr, rbargs, verbose=verbose)
 
@@ -331,6 +323,6 @@ def pitch_shift(y, sr, n_steps, rbargs=None, verbose=False):
     if rbargs is None:
         rbargs = []
 
-    rbargs = ['--pitch', n_steps] + rbargs
+    rbargs = ['--pitch', '%.8f'.format(n_steps)] + rbargs
 
     return __rubberband(y, sr, rbargs, verbose=verbose)
