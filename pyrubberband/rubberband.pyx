@@ -99,7 +99,7 @@ cdef extern from "rubberband-c.h":
 cdef __parse_args(rbargs):
     class ArgumentParser(argparse.ArgumentParser):
         def error(self, message):
-            raise ValueError('ArgumentParser Error: ' + message)
+            raise ValueError(message)
 
     parser = ArgumentParser(description='rubberband arguments')
     parser.add_argument('--time', '-t', dest='time', type=float, help='Stretch to X times original duration')
@@ -130,11 +130,7 @@ cdef __parse_args(rbargs):
     parser.add_argument('--debug', '-d', dest='debug', type=int, help='Select debug level (N = 0,1,2,3); default 0, full 3 (N.B. debug level 3 includes audible ticks in output)')
     parser.add_argument('--quiet', '-q', dest='quiet', action='store_true', help='Suppress progress output')
 
-    try:
-        return parser.parse_args(rbargs)
-    except ValueError:
-        fprintf(stderr, 'Failed to parse: ' + str(rbargs))
-        raise
+    return parser.parse_args(rbargs)
 
 
 cdef __rubberband_params(args, sr, frames):
