@@ -243,7 +243,12 @@ cdef __rubberband(y, sr, rbargs, verbose=False):
     free(output_data)
     free(input_data)
 
-    return output.astype(dtype).transpose()
+    output = output.astype(dtype).transpose()
+
+    if ndim == 1:
+        output = np.squeeze(output, axis=1)
+
+    return output
 
 
 def time_stretch(y, sr, rate, rbargs=None, verbose=False):
